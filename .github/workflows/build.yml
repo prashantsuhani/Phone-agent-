@@ -1,1 +1,43 @@
-{"name":"Build APK","on":["push","workflow_dispatch"],"jobs":{"build":{"runs-on":"ubuntu-latest","steps":[{"uses":"actions/checkout@v4"},{"run":"for f in *.zip; do unzip -q -o \"$f\"; done"},{"uses":"actions/setup-java@v4","with":{"distribution":"temurin","java-version":17}},{"uses":"gradle/actions/setup-gradle@v4","with":{"gradle-version":"8.7","build-root-directory":"PhoneAgent"}},{"run":"gradle assembleDebug --no-daemon","working-directory":"PhoneAgent"},{"uses":"actions/upload-artifact@v4","with":{"name":"PhoneAgent-apk","path":"PhoneAgent/app/build/outputs/apk/debug/app-debug.apk"}}]}}}
+
+
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract project ZIP
+        run: |
+          for f in *.zip; do
+            [ -f "$f" ] && unzip -o "$f" -d .
+          done
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
+
+      - name: Build APK
+        working-directory: PhoneAgent
+        run: gradle :app:assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Phool-Kumari-apk
+          path: PhoneAgent/app/build/outputs/apk/debug/app-debug.apk
